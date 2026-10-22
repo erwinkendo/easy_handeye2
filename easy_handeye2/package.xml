@@ -21,12 +21,19 @@
 
     <exec_depend>rclpy</exec_depend>
     <exec_depend>tf2_ros</exec_depend>
-    <exec_depend>python-transforms3d-pip</exec_depend>
+    <exec_depend>python3-transforms3d</exec_depend>
     <exec_depend>python3-opencv</exec_depend>
 
     <exec_depend version_gte="0.2.19">python_qt_binding</exec_depend>
     <exec_depend>rqt_gui</exec_depend>
     <exec_depend>rqt_gui_py</exec_depend>
+    <!-- imported (unused) by handeye_rqt_calibrator.py and handeye_rqt_evaluator.py; without it the rqt plugin fails to load -->
+    <exec_depend>rqt_py_common</exec_depend>
+
+    <!-- launch/calibrate_urx_realsense.launch.py: RealSense camera and ArUco/ChArUco tracker
+         (aruco_opencv from github.com/fictionlab/ros_aruco_opencv, branch charuco-board for ChArUco boards) -->
+    <exec_depend>realsense2_camera</exec_depend>
+    <exec_depend>aruco_opencv</exec_depend>
 
     <export>
         <rqt_gui plugin="${prefix}/plugin_calibrator.xml" />
