@@ -139,6 +139,41 @@ to accept or discard each sample. At the end, the parameters will be saved in a 
 ```
 
 
+#### Example: UR (urx-simple-hl) + RealSense + ChArUco board
+
+`calibrate_urx_realsense.launch.py` is a ready-made eye-in-hand calibration for a UR arm driven with a wrist-mounted RealSense. It starts the RealSense driver
+(`rs_camera`), the board tracker, `handeye_server` and the rqt GUI, and calibrates `tool0` -> `rs_camera_link`.
+
+It uses the ChArUco support of the **`charuco-board` branch of the
+[ros_aruco_opencv fork](https://github.com/erwinkendo/ros_aruco_opencv/tree/charuco-board)**; upstream
+`fictionlab/ros_aruco_opencv` and the released `ros-<distro>-aruco-opencv` package only detect single markers and grid boards. Build it from source in
+the same workspace (it needs OpenCV < 4.7, e.g. the one of ROS 2 Jazzy):
+
+```bash
+cd ~/ros2_ws/src
+git clone -b charuco-board git@github.com:erwinkendo/ros_aruco_opencv.git
+cd .. && colcon build --packages-select aruco_opencv_msgs aruco_opencv easy_handeye2
+```
+
+Start the arm driver and a `robot_state_publisher` that provides `base` -> `tool0` first (the GUI does not appear until that transform
+and the board in the camera view are both available), then:
+
+```bash
+# ChArUco 5x7, square 0.030 m, marker 0.015 m, DICT_5X5_100 (aruco_opencv/config/board_charuco_5x7.yaml)
+ros2 launch easy_handeye2 calibrate_urx_realsense.launch.py
+
+# another board: describe it in a yaml like the one above, then
+ros2 launch easy_handeye2 calibrate_urx_realsense.launch.py board_descriptions_file:=<yaml> board_name:=<name> marker_dict:=<dict>
+
+# a single ArUco marker instead of a board
+ros2 launch easy_handeye2 calibrate_urx_realsense.launch.py target:=marker marker_size:=0.10 marker_dict:=4X4_50
+```
+
+The board frame follows OpenCV's convention (origin at the top-left outer corner of the print, X along `squares_x`, Y down the page, Z into
+the board) and is published as `board_<name>`. Measure the printed square and marker sizes: they set the scale of the result.
+The rqt GUI needs the `rqt_py_common` package (declared in `package.xml`); the launch file starts it with `--force-discover` so a stale
+rqt plugin cache cannot make it exit without a window.
+
 #### Moving the robot
 
 **WARNING**: this will only be available for Iron, and is work-in-progress
